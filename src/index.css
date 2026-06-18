@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    margin: 0;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    overflow: hidden;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+}
+
+@layer components {
+  .history-sheet-vite[data-state="open"] {
+    transform: translateY(0) !important;
+  }
+
+  @media (orientation: landscape) {
+    .score-screen-vite {
+      gap: 0.375rem;
+    }
+
+    .score-topbar-vite {
+      gap: 0.5rem;
+    }
+
+    .score-title-vite {
+      font-size: clamp(2.25rem, 6vw, 3rem);
+    }
+
+    .topbar-reset {
+      min-width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .topbar-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .round-strip-vite {
+      min-height: 2rem;
+    }
+
+    .round-count-vite,
+    .finish-round-vite {
+      height: 2rem;
+      font-size: 0.75rem;
+    }
+
+    .round-count-vite span {
+      font-size: 0.875rem;
+    }
+
+    .score-grid-vite {
+      gap: 0.75rem;
+    }
+
+    .score-grid-vite.landscape-player-count {
+      grid-template-columns: repeat(var(--player-count), minmax(0, 1fr)) !important;
+    }
+
+    .player-card-vite {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+    }
+
+    .player-name-vite {
+      grid-column: 1 / -1;
+      padding: 0.5rem 0.375rem 0.4375rem;
+      font-size: clamp(1.2rem, 4vw, 1.75rem);
+    }
+
+    .score-value-vite {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      align-self: center;
+      padding: 0.25rem;
+      font-size: clamp(2.35rem, 7vw, 4.8rem);
+    }
+
+    .round-score-vite {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      align-self: end;
+      justify-self: center;
+      margin: 0 0 0.375rem;
+      padding: 0.1875rem 0.5rem;
+      font-size: clamp(0.68rem, 1.65vw, 0.9rem);
+      transform: none;
+    }
+
+    .score-button-vite {
+      grid-row: 4;
+      height: 2.25rem;
+      margin-bottom: 0.375rem;
+      font-size: 1.5rem;
+    }
+
+    .score-button-plus-vite {
+      margin-left: 0.625rem;
+      margin-right: 0.25rem;
+    }
+
+    .score-button-minus-vite {
+      margin-left: 0.25rem;
+      margin-right: 0.625rem;
+    }
+  }
+}

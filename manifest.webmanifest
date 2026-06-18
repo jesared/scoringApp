@@ -1,0 +1,15 @@
+{
+  "name": "Scoring",
+  "short_name": "Scoring",
+  "start_url": ".",
+  "display": "fullscreen",
+  "background_color": "#050507",
+  "theme_color": "#050507",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
