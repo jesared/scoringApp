@@ -435,6 +435,7 @@ function ScoreScreen({
       <div
         className={cn(
           "score-grid-vite grid min-h-0 gap-2.5",
+          `players-${state.count}`,
           state.count === 1 && "grid-cols-1",
           state.count >= 2 && state.count <= 4 && "grid-cols-2",
           state.count >= 5 && "grid-cols-3",

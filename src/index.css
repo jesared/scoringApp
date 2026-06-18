@@ -216,7 +216,7 @@
 
     .score-title-vite {
       min-width: 0;
-      font-size: clamp(2rem, 13vw, 3rem);
+      font-size: clamp(1.9rem, 11.5vw, 2.75rem);
     }
 
     .topbar-reset {
@@ -279,6 +279,94 @@
       width: clamp(2.75rem, 12vw, 3.25rem);
       height: clamp(2.25rem, 7vh, 2.75rem);
       font-size: 1.55rem;
+    }
+
+    .score-grid-vite.players-4 {
+      gap: 0.55rem;
+    }
+
+    .score-grid-vite.players-4 .player-name-vite {
+      padding: 0.55rem 0.35rem;
+      font-size: clamp(1rem, 5.3vw, 1.35rem);
+    }
+
+    .score-grid-vite.players-4 .score-stack-vite {
+      gap: clamp(0.28rem, 0.9vh, 0.5rem);
+      padding: 0.35rem 0.2rem;
+    }
+
+    .score-grid-vite.players-4 .score-value-vite {
+      font-size: clamp(2.6rem, 15vw, 3.9rem);
+    }
+
+    .score-grid-vite.players-4 .round-score-vite {
+      padding: 0.18rem 0.45rem;
+      font-size: clamp(0.64rem, 3vw, 0.82rem);
+    }
+
+    .score-grid-vite.players-4 .score-button-vite {
+      width: clamp(2.45rem, 11vw, 2.9rem);
+      height: clamp(2rem, 6vh, 2.35rem);
+      font-size: 1.35rem;
+    }
+  }
+
+  @media (max-width: 430px) and (max-height: 720px) and (orientation: portrait) {
+    .score-screen-vite {
+      gap: 0.35rem;
+    }
+
+    .score-title-vite {
+      font-size: clamp(1.9rem, 11vw, 2.55rem);
+    }
+
+    .topbar-reset {
+      min-width: 2.4rem;
+      height: 2.4rem;
+      font-size: 0.56rem;
+    }
+
+    .topbar-icon {
+      width: 2.1rem;
+      height: 2.1rem;
+    }
+
+    .round-strip-vite {
+      min-height: 2.25rem;
+    }
+
+    .round-count-vite,
+    .finish-round-vite {
+      height: 2.25rem;
+      font-size: 0.78rem;
+    }
+
+    .round-count-vite span {
+      font-size: 0.9rem;
+    }
+
+    .score-grid-vite.players-4 .player-name-vite {
+      padding: 0.45rem 0.3rem;
+      font-size: clamp(0.95rem, 4.7vw, 1.2rem);
+    }
+
+    .score-grid-vite.players-4 .score-stack-vite {
+      gap: 0.28rem;
+      padding: 0.25rem 0.15rem;
+    }
+
+    .score-grid-vite.players-4 .score-value-vite {
+      font-size: clamp(2.25rem, 13vw, 3.2rem);
+    }
+
+    .score-grid-vite.players-4 .round-score-vite {
+      font-size: 0.62rem;
+    }
+
+    .score-grid-vite.players-4 .score-button-vite {
+      width: 2.35rem;
+      height: 1.9rem;
+      font-size: 1.25rem;
     }
   }
 
