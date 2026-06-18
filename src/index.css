@@ -125,7 +125,99 @@
     padding: 0.75rem 0.5rem;
   }
 
+  .player-card-vite {
+    position: relative;
+  }
+
+  @media (max-width: 430px) and (orientation: portrait) {
+    .app-shell-vite {
+      padding: max(8px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+        max(8px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+    }
+
+    .score-screen-vite {
+      gap: 0.5rem;
+    }
+
+    .score-topbar-vite {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 0.375rem;
+    }
+
+    .score-title-vite {
+      min-width: 0;
+      font-size: clamp(2rem, 13vw, 3rem);
+    }
+
+    .topbar-reset {
+      min-width: 2.75rem;
+      height: 2.75rem;
+      padding-inline: 0.25rem;
+      font-size: 0.62rem;
+    }
+
+    .topbar-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      padding: 0;
+    }
+
+    .score-topbar-vite > div {
+      gap: 0.25rem;
+    }
+
+    .round-strip-vite {
+      min-height: 2.625rem;
+      gap: 0.5rem;
+    }
+
+    .round-count-vite,
+    .finish-round-vite {
+      height: 2.625rem;
+      padding-inline: 0.625rem;
+      font-size: 0.9rem;
+    }
+
+    .round-count-vite span {
+      font-size: 1rem;
+    }
+
+    .score-grid-vite {
+      gap: 0.5rem;
+    }
+
+    .player-name-vite {
+      padding: 0.75rem 0.375rem;
+      font-size: clamp(1.1rem, 6vw, 1.55rem);
+    }
+
+    .score-stack-vite {
+      gap: clamp(0.35rem, 1.2vh, 0.65rem);
+      padding: 0.5rem 0.25rem;
+    }
+
+    .score-value-vite {
+      font-size: clamp(3.5rem, 18vw, 5rem);
+    }
+
+    .round-score-vite {
+      padding: 0.25rem 0.5rem;
+      font-size: clamp(0.72rem, 3.3vw, 0.9rem);
+    }
+
+    .score-button-vite {
+      width: clamp(2.75rem, 12vw, 3.25rem);
+      height: clamp(2.25rem, 7vh, 2.75rem);
+      font-size: 1.55rem;
+    }
+  }
+
   @media (orientation: landscape) {
+    .app-shell-vite {
+      padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+        max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+    }
+
     .score-screen-vite {
       gap: 0.375rem;
     }
@@ -135,7 +227,7 @@
     }
 
     .score-title-vite {
-      font-size: clamp(2.25rem, 6vw, 3rem);
+      font-size: clamp(1.85rem, 6vw, 3rem);
     }
 
     .topbar-reset {
@@ -206,6 +298,89 @@
 
     .score-button-minus-vite {
       margin: 0 auto 0.375rem;
+    }
+  }
+
+  @media (max-height: 430px) and (orientation: landscape) {
+    .score-screen-vite {
+      gap: 0.25rem;
+    }
+
+    .score-topbar-vite {
+      gap: 0.375rem;
+    }
+
+    .score-title-vite {
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+    }
+
+    .topbar-reset {
+      min-width: 2.25rem;
+      height: 2.25rem;
+      padding-inline: 0.25rem;
+      font-size: 0.58rem;
+    }
+
+    .topbar-icon {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .score-topbar-vite > div {
+      gap: 0.25rem;
+    }
+
+    .round-strip-vite {
+      min-height: 1.75rem;
+      gap: 0.375rem;
+    }
+
+    .round-count-vite,
+    .finish-round-vite {
+      height: 1.75rem;
+      font-size: 0.68rem;
+    }
+
+    .round-count-vite span {
+      font-size: 0.78rem;
+    }
+
+    .score-grid-vite {
+      gap: 0.5rem;
+    }
+
+    .player-name-vite {
+      padding: 0.375rem;
+      font-size: clamp(1rem, 3.4vw, 1.5rem);
+    }
+
+    .score-stack-vite {
+      gap: 0.6rem;
+      padding: 0.25rem;
+    }
+
+    .score-value-vite {
+      font-size: clamp(1.65rem, 4.8vw, 2.2rem);
+    }
+
+    .round-score-vite {
+      position: absolute;
+      top: 0.35rem;
+      right: 0.35rem;
+      left: auto;
+      z-index: 1;
+      margin: 0;
+      min-height: 1.05rem;
+      padding: 0 0.375rem;
+      font-size: clamp(0.52rem, 1.35vw, 0.68rem);
+      line-height: 1;
+      transform: none;
+    }
+
+    .score-button-vite {
+      width: clamp(2rem, 6vw, 2.5rem);
+      height: clamp(1.55rem, 6.2vh, 1.9rem);
+      font-size: 1.15rem;
     }
   }
 }

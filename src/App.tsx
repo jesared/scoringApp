@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react"
-import { Expand, History, RotateCcw, Settings } from "lucide-react"
+import { Expand, List, RotateCcw, Settings } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -237,7 +237,7 @@ export default function App() {
   }
 
   return (
-    <main className="h-dvh min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,hsl(176_78%_48%/.18),transparent_30rem),radial-gradient(circle_at_bottom_right,hsl(35_100%_52%/.12),transparent_28rem),hsl(240_12%_2%)] p-[max(14px,env(safe-area-inset-top))] text-foreground [@media(orientation:landscape)]:p-[max(6px,env(safe-area-inset-top))]">
+    <main className="app-shell-vite h-dvh min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,hsl(176_78%_48%/.18),transparent_30rem),radial-gradient(circle_at_bottom_right,hsl(35_100%_52%/.12),transparent_28rem),hsl(240_12%_2%)] p-[max(14px,env(safe-area-inset-top))] text-foreground [@media(orientation:landscape)]:p-[max(6px,env(safe-area-inset-top))]">
       {state.screen === "setup" ? (
         <SetupScreen
           players={state.players}
@@ -383,7 +383,7 @@ function ScoreScreen({
                 type="button"
                 variant="outline"
               >
-                <History data-icon="inline-start" />
+                <List data-icon="inline-start" />
               </Button>
             </SheetTrigger>
             <HistorySheet history={state.history} />
@@ -472,7 +472,7 @@ function PlayerCard({
   return (
     <article
       className={cn(
-        "player-card-vite grid min-h-0 overflow-hidden rounded-lg border-2 bg-black/70 shadow-2xl",
+        "player-card-vite grid min-h-0 min-w-0 overflow-hidden rounded-lg border-2 bg-black/70 shadow-2xl",
         "grid-rows-[auto_minmax(0,1fr)]",
       )}
       style={
