@@ -473,7 +473,7 @@ function PlayerCard({
     <article
       className={cn(
         "player-card-vite grid min-h-0 overflow-hidden rounded-lg border-2 bg-black/70 shadow-2xl",
-        "grid-rows-[auto_minmax(0,1fr)_auto_auto_auto]",
+        "grid-rows-[auto_minmax(0,1fr)]",
       )}
       style={
         {
@@ -494,53 +494,57 @@ function PlayerCard({
         {player.name}
       </h3>
 
-      <div
-        className={cn(
-          "score-value-vite grid min-h-0 place-items-center px-2 pb-1 pt-2 text-7xl font-black leading-none text-white drop-shadow-2xl",
-          count >= 5 && "text-5xl",
-        )}
-      >
-        {player.total}
+      <div className="score-stack-vite">
+        <Button
+          aria-label={`Ajouter 1 point à ${player.name}`}
+          className={cn(
+            "score-button-vite score-button-plus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
+            count >= 5 && "text-2xl",
+          )}
+          onClick={onPlus}
+          style={{ backgroundColor: "var(--player-accent)" }}
+          type="button"
+        >
+          +
+        </Button>
+
+        <div
+          className={cn(
+            "score-value-vite grid min-h-0 place-items-center px-2 text-7xl font-black leading-none text-white drop-shadow-2xl",
+            count >= 5 && "text-5xl",
+          )}
+        >
+          {player.total}
+        </div>
+
+        <Badge
+          className={cn(
+            "round-score-vite mx-auto rounded-md px-3 py-1 text-sm font-black",
+            player.current === 0 && "text-muted-foreground",
+            count >= 5 && "px-1.5 py-0.5 text-[0.7rem]",
+          )}
+          style={{
+            borderColor: "color-mix(in srgb, var(--player-accent) 50%, transparent)",
+            color: player.current === 0 ? undefined : "var(--player-accent)",
+          }}
+          variant="outline"
+        >
+          Manche {formatSigned(player.current)}
+        </Badge>
+
+        <Button
+          aria-label={`Retirer 1 point à ${player.name}`}
+          className={cn(
+            "score-button-vite score-button-minus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
+            count >= 5 && "text-2xl",
+          )}
+          onClick={onMinus}
+          style={{ backgroundColor: "color-mix(in srgb, var(--player-accent) 55%, black)" }}
+          type="button"
+        >
+          -
+        </Button>
       </div>
-
-      <Badge
-        className={cn(
-          "round-score-vite mx-auto mb-2 rounded-md px-3 py-1 text-sm font-black",
-          player.current === 0 && "text-muted-foreground",
-          count >= 5 && "mb-1 px-1.5 py-0.5 text-[0.7rem]",
-        )}
-        style={{
-          borderColor: "color-mix(in srgb, var(--player-accent) 50%, transparent)",
-          color: player.current === 0 ? undefined : "var(--player-accent)",
-        }}
-        variant="outline"
-      >
-        Manche {formatSigned(player.current)}
-      </Badge>
-
-      <Button
-        className={cn(
-          "score-button-vite score-button-plus-vite mx-2.5 mb-2 h-16 rounded-md text-4xl font-black text-white hover:opacity-90",
-          count >= 5 && "mx-1.5 mb-1.5 h-11 text-2xl",
-        )}
-        onClick={onPlus}
-        style={{ backgroundColor: "var(--player-accent)" }}
-        type="button"
-      >
-        +1
-      </Button>
-
-      <Button
-        className={cn(
-          "score-button-vite score-button-minus-vite mx-2.5 mb-2 h-16 rounded-md text-4xl font-black text-white hover:opacity-90",
-          count >= 5 && "mx-1.5 mb-1.5 h-11 text-2xl",
-        )}
-        onClick={onMinus}
-        style={{ backgroundColor: "color-mix(in srgb, var(--player-accent) 55%, black)" }}
-        type="button"
-      >
-        -1
-      </Button>
     </article>
   )
 }
