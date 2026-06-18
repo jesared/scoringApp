@@ -129,6 +129,76 @@
     position: relative;
   }
 
+  .setup-screen-vite {
+    scrollbar-width: thin;
+    padding-block: min(8vh, 3rem);
+  }
+
+  @media (max-width: 430px) {
+    .setup-screen-vite {
+      gap: 1.25rem;
+      padding: max(0.75rem, env(safe-area-inset-top)) 0 max(1rem, env(safe-area-inset-bottom));
+    }
+
+    .setup-head-vite {
+      gap: 0.35rem;
+    }
+
+    .setup-label-vite {
+      font-size: 0.75rem;
+      line-height: 1;
+    }
+
+    .setup-title-vite {
+      font-size: clamp(2.4rem, 12vw, 3.15rem);
+      line-height: 0.95;
+    }
+
+    .setup-form-vite {
+      gap: 1rem;
+    }
+
+    .setup-legend-vite {
+      margin-bottom: 0.5rem;
+      font-size: 0.82rem;
+    }
+
+    .setup-count-grid-vite {
+      gap: 0.5rem;
+    }
+
+    .setup-count-button-vite {
+      height: 3rem;
+      min-width: 0;
+      padding-inline: 0;
+      font-size: 1rem;
+    }
+
+    .setup-name-fields-vite {
+      gap: 0.65rem;
+    }
+
+    .setup-name-field-vite {
+      gap: 0.3rem;
+    }
+
+    .setup-name-label-vite {
+      font-size: 0.72rem;
+    }
+
+    .setup-input-vite {
+      height: 3rem;
+      padding-inline: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .setup-submit-vite {
+      height: 3.25rem;
+      flex-shrink: 0;
+      margin-bottom: 0.5rem;
+    }
+  }
+
   @media (max-width: 430px) and (orientation: portrait) {
     .app-shell-vite {
       padding: max(8px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))

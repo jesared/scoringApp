@@ -277,28 +277,30 @@ function SetupScreen({
   onSubmit: () => void
 }) {
   return (
-    <section className="mx-auto grid h-full max-w-xl content-center gap-7">
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-black uppercase text-cyan-300">Scoring</p>
-        <h1 className="text-5xl font-black leading-none tracking-normal">Nouvelle partie</h1>
+    <section className="setup-screen-vite mx-auto flex h-full max-w-xl flex-col gap-7 overflow-y-auto">
+      <div className="setup-head-vite flex flex-col gap-2">
+        <p className="setup-label-vite text-sm font-black uppercase text-cyan-300">Scoring</p>
+        <h1 className="setup-title-vite text-5xl font-black leading-none tracking-normal">
+          Nouvelle partie
+        </h1>
       </div>
 
       <form
-        className="flex flex-col gap-6"
+        className="setup-form-vite flex flex-col gap-6"
         onSubmit={(event) => {
           event.preventDefault()
           onSubmit()
         }}
       >
         <fieldset className="flex flex-col gap-3">
-          <legend className="text-sm font-extrabold text-muted-foreground">
+          <legend className="setup-legend-vite text-sm font-extrabold text-muted-foreground">
             Nombre de joueurs
           </legend>
-          <div className="grid grid-cols-6 gap-2">
+          <div className="setup-count-grid-vite grid grid-cols-6 gap-2">
             {Array.from({ length: 6 }, (_, index) => index + 1).map((value) => (
               <Button
                 aria-pressed={value === count}
-                className="h-14 text-lg font-black aria-pressed:border-cyan-300 aria-pressed:bg-cyan-300/15 aria-pressed:text-cyan-300"
+                className="setup-count-button-vite h-14 text-lg font-black aria-pressed:border-cyan-300 aria-pressed:bg-cyan-300/15 aria-pressed:text-cyan-300"
                 key={value}
                 onClick={() => onCountChange(value)}
                 type="button"
@@ -310,14 +312,14 @@ function SetupScreen({
           </div>
         </fieldset>
 
-        <div className="flex flex-col gap-3">
+        <div className="setup-name-fields-vite flex flex-col gap-3">
           {players.map((player, index) => (
-            <label className="flex flex-col gap-1.5" key={index}>
-              <span className="text-xs font-extrabold text-muted-foreground">
+            <label className="setup-name-field-vite flex flex-col gap-1.5" key={index}>
+              <span className="setup-name-label-vite text-xs font-extrabold text-muted-foreground">
                 Joueur {index + 1}
               </span>
               <input
-                className="h-13 rounded-md border border-input bg-input/30 px-3 text-base font-extrabold outline-none transition focus:border-ring focus:ring-[3px] focus:ring-ring/50"
+                className="setup-input-vite h-13 rounded-md border border-input bg-input/30 px-3 text-base font-extrabold outline-none transition focus:border-ring focus:ring-[3px] focus:ring-ring/50"
                 maxLength={18}
                 onChange={(event) => onNameChange(index, event.target.value)}
                 value={player.name}
@@ -326,7 +328,7 @@ function SetupScreen({
           ))}
         </div>
 
-        <Button className="h-16 text-base font-black" type="submit">
+        <Button className="setup-submit-vite h-16 text-base font-black" type="submit">
           Démarrer
         </Button>
       </form>
