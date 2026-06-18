@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react"
-import { Expand, List, RotateCcw, Settings } from "lucide-react"
+import { Download, Expand, List, RotateCcw, Settings } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -379,7 +379,7 @@ function ScoreScreen({
           <Sheet open={isHistoryOpen} onOpenChange={onHistoryOpenChange}>
             <SheetTrigger asChild>
               <Button
-                aria-label="Voir l'historique"
+                aria-label="Voir le résumé"
                 className="topbar-icon"
                 size="icon-lg"
                 type="button"
@@ -388,7 +388,7 @@ function ScoreScreen({
                 <List data-icon="inline-start" />
               </Button>
             </SheetTrigger>
-            <HistorySheet history={state.history} />
+            <HistorySheet history={state.history} players={state.players} round={state.round} />
           </Sheet>
 
           <Button
@@ -552,15 +552,60 @@ function PlayerCard({
   )
 }
 
-function HistorySheet({ history }: { history: HistoryEntry[] }) {
+function HistorySheet({
+  history,
+  players,
+  round,
+}: {
+  history: HistoryEntry[]
+  players: Player[]
+  round: number
+}) {
+  const ranking = [...players].sort((first, second) => second.total - first.total)
   return (
     <SheetContent className="history-sheet-vite h-[72dvh] border-border/70 bg-background/95 p-0 backdrop-blur" side="bottom">
       <SheetHeader className="border-b">
-        <SheetTitle className="text-2xl font-black">Historique</SheetTitle>
-        <SheetDescription>Scores validés à chaque fin de manche.</SheetDescription>
+        <SheetTitle className="text-2xl font-black">Résumé</SheetTitle>
+        <SheetDescription>Classement actuel et scores validés à chaque fin de manche.</SheetDescription>
       </SheetHeader>
 
       <ScrollArea className="min-h-0 flex-1 px-4 pb-4">
+        <Card className="mt-3 overflow-hidden">
+          <CardHeader className="border-b px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="text-base font-black">Classement</CardTitle>
+              <Button
+                className="h-8 px-3 text-xs font-black"
+                onClick={() => downloadSummary(players, history, round)}
+                type="button"
+                variant="outline"
+              >
+                <Download data-icon="inline-start" />
+                Télécharger
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            {ranking.map((player, index) => (
+              <div
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-3 border-b px-4 py-2.5 last:border-b-0"
+                key={`${player.name}-${index}`}
+              >
+                <Badge className="rounded-md font-black" variant={index === 0 ? "default" : "secondary"}>
+                  {index + 1}
+                </Badge>
+                <span className="truncate font-extrabold text-muted-foreground">{player.name}</span>
+                {player.current !== 0 && (
+                  <span className="text-xs font-black text-cyan-300">
+                    {formatSigned(player.current)}
+                  </span>
+                )}
+                <strong className="font-black">{player.total}</strong>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
         {history.length === 0 ? (
           <p className="py-8 text-center text-sm font-bold text-muted-foreground">
             Aucune manche validée
@@ -593,6 +638,49 @@ function HistorySheet({ history }: { history: HistoryEntry[] }) {
       </ScrollArea>
     </SheetContent>
   )
+}
+
+function downloadSummary(players: Player[], history: HistoryEntry[], round: number) {
+  const content = buildSummaryText(players, history, round)
+  const blob = new Blob(["\ufeff", content], { type: "text/plain;charset=utf-8" })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+
+  link.href = url
+  link.download = `scoring-resume-manche-${round}.txt`
+  document.body.append(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+function buildSummaryText(players: Player[], history: HistoryEntry[], round: number) {
+  const ranking = [...players].sort((first, second) => second.total - first.total)
+  const lines = [
+    "Résumé Scoring",
+    `Manche en cours : ${round}`,
+    "",
+    "Classement",
+    ...ranking.map((player, index) => {
+      const current = player.current !== 0 ? ` (${formatSigned(player.current)} en cours)` : ""
+      return `${index + 1}. ${player.name} - ${player.total}${current}`
+    }),
+    "",
+    "Historique",
+  ]
+
+  if (history.length === 0) {
+    lines.push("Aucune manche validée")
+  } else {
+    history.forEach((entry) => {
+      lines.push("", `Manche ${entry.round}`)
+      entry.entries.forEach((score) => {
+        lines.push(`- ${score.name}: ${score.total} (${formatSigned(score.delta)})`)
+      })
+    })
+  }
+
+  return `${lines.join("\n")}\n`
 }
 
 async function clearLegacyServiceWorker() {
