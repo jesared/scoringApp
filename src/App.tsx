@@ -375,7 +375,7 @@ function ScoreScreen({
           Scoring
         </h2>
 
-        <div className="flex gap-2">
+        <div className="topbar-actions-vite flex gap-2">
           <Sheet open={isHistoryOpen} onOpenChange={onHistoryOpenChange}>
             <SheetTrigger asChild>
               <Button
