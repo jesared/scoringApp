@@ -44,6 +44,7 @@ type ScoreState = {
   screen: Screen
   count: number
   round: number
+  useRounds: boolean
   history: HistoryEntry[]
   players: Player[]
 }
@@ -62,6 +63,7 @@ function createDefaultState(count = 4): ScoreState {
     screen: "setup",
     count,
     round: 1,
+    useRounds: true,
     history: [],
     players: Array.from({ length: count }, (_, index) => ({
       name: `Joueur ${index + 1}`,
@@ -98,6 +100,7 @@ function loadState(): ScoreState {
       screen: stored.screen === "score" ? "score" : "setup",
       count,
       round: Math.max(1, Number.parseInt(String(stored.round), 10) || 1),
+      useRounds: stored.useRounds !== false,
       history: Array.isArray(stored.history) ? stored.history : [],
       players,
     }
@@ -155,6 +158,18 @@ export default function App() {
     }))
   }
 
+  function updateUseRounds(useRounds: boolean) {
+    setState((current) => ({
+      ...current,
+      useRounds,
+      players: current.players.map((player) => ({
+        ...player,
+        total: useRounds ? player.total : player.total + player.current,
+        current: useRounds ? player.current : 0,
+      })),
+    }))
+  }
+
   function startGame() {
     setState((current) => ({
       ...current,
@@ -162,6 +177,7 @@ export default function App() {
       players: current.players.map((player, index) => ({
         ...player,
         name: player.name.trim() || `Joueur ${index + 1}`,
+        current: current.useRounds ? player.current : 0,
       })),
     }))
   }
@@ -170,13 +186,17 @@ export default function App() {
     setState((current) => ({
       ...current,
       players: current.players.map((player, playerIndex) =>
-        playerIndex === index ? { ...player, current: player.current + delta } : player,
+        playerIndex === index
+          ? current.useRounds
+            ? { ...player, current: player.current + delta }
+            : { ...player, total: player.total + delta }
+          : player,
       ),
     }))
   }
 
   function finishRound() {
-    if (!hasCurrentScore) return
+    if (!state.useRounds || !hasCurrentScore) return
 
     setState((current) => {
       const entries = current.players.map((player) => ({
@@ -242,8 +262,10 @@ export default function App() {
         <SetupScreen
           players={state.players}
           count={state.count}
+          useRounds={state.useRounds}
           onCountChange={updatePlayerCount}
           onNameChange={updatePlayerName}
+          onUseRoundsChange={updateUseRounds}
           onSubmit={startGame}
         />
       ) : (
@@ -266,14 +288,18 @@ export default function App() {
 function SetupScreen({
   players,
   count,
+  useRounds,
   onCountChange,
   onNameChange,
+  onUseRoundsChange,
   onSubmit,
 }: {
   players: Player[]
   count: number
+  useRounds: boolean
   onCountChange: (count: number) => void
   onNameChange: (index: number, name: string) => void
+  onUseRoundsChange: (useRounds: boolean) => void
   onSubmit: () => void
 }) {
   return (
@@ -309,6 +335,32 @@ function SetupScreen({
                 {value}
               </Button>
             ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="setup-legend-vite text-sm font-extrabold text-muted-foreground">
+            Type de partie
+          </legend>
+          <div className="setup-mode-grid-vite grid grid-cols-2 gap-2">
+            <Button
+              aria-pressed={useRounds}
+              className="setup-mode-button-vite h-14 text-sm font-black aria-pressed:border-cyan-300 aria-pressed:bg-cyan-300/15 aria-pressed:text-cyan-300"
+              onClick={() => onUseRoundsChange(true)}
+              type="button"
+              variant="outline"
+            >
+              Avec manches
+            </Button>
+            <Button
+              aria-pressed={!useRounds}
+              className="setup-mode-button-vite h-14 text-sm font-black aria-pressed:border-cyan-300 aria-pressed:bg-cyan-300/15 aria-pressed:text-cyan-300"
+              onClick={() => onUseRoundsChange(false)}
+              type="button"
+              variant="outline"
+            >
+              Sans manches
+            </Button>
           </div>
         </fieldset>
 
@@ -358,7 +410,12 @@ function ScoreScreen({
   onToggleFullscreen: () => void
 }) {
   return (
-    <section className="score-screen-vite grid h-full grid-rows-[auto_auto_1fr] gap-2">
+    <section
+      className={cn(
+        "score-screen-vite grid h-full gap-2",
+        state.useRounds ? "grid-rows-[auto_auto_1fr]" : "grid-rows-[auto_1fr]",
+      )}
+    >
       <header className="score-topbar-vite grid grid-cols-[auto_1fr_auto] items-center gap-2.5">
         <Button
           aria-label="Réinitialiser les scores"
@@ -388,7 +445,12 @@ function ScoreScreen({
                 <List data-icon="inline-start" />
               </Button>
             </SheetTrigger>
-            <HistorySheet history={state.history} players={state.players} round={state.round} />
+            <HistorySheet
+              history={state.history}
+              players={state.players}
+              round={state.round}
+              useRounds={state.useRounds}
+            />
           </Sheet>
 
           <Button
@@ -415,22 +477,24 @@ function ScoreScreen({
         </div>
       </header>
 
-      <div className="round-strip-vite grid min-h-11 grid-cols-[auto_1fr] items-center gap-2">
-        <Badge
-          className="round-count-vite h-11 rounded-md px-3 text-base font-black"
-          variant="secondary"
-        >
-          Manche&nbsp;<span className="text-lg">{state.round}</span>
-        </Badge>
-        <Button
-          className="finish-round-vite h-11 bg-gradient-to-r from-cyan-400 to-blue-500 text-sm font-black text-white hover:from-cyan-400/90 hover:to-blue-500/90"
-          disabled={!hasCurrentScore}
-          onClick={onFinishRound}
-          type="button"
-        >
-          Fin de manche
-        </Button>
-      </div>
+      {state.useRounds && (
+        <div className="round-strip-vite grid min-h-11 grid-cols-[auto_1fr] items-center gap-2">
+          <Badge
+            className="round-count-vite h-11 rounded-md px-3 text-base font-black"
+            variant="secondary"
+          >
+            Manche&nbsp;<span className="text-lg">{state.round}</span>
+          </Badge>
+          <Button
+            className="finish-round-vite h-11 bg-gradient-to-r from-cyan-400 to-blue-500 text-sm font-black text-white hover:from-cyan-400/90 hover:to-blue-500/90"
+            disabled={!hasCurrentScore}
+            onClick={onFinishRound}
+            type="button"
+          >
+            Fin de manche
+          </Button>
+        </div>
+      )}
 
       <div
         className={cn(
@@ -450,8 +514,8 @@ function ScoreScreen({
             count={state.count}
             key={`${player.name}-${index}`}
             player={player}
-            onMinus={() => onScoreChange(index, -1)}
-            onPlus={() => onScoreChange(index, 1)}
+            useRounds={state.useRounds}
+            onScoreChange={(delta) => onScoreChange(index, delta)}
           />
         ))}
       </div>
@@ -463,14 +527,14 @@ function PlayerCard({
   accent,
   count,
   player,
-  onMinus,
-  onPlus,
+  useRounds,
+  onScoreChange,
 }: {
   accent: string
   count: number
   player: Player
-  onMinus: () => void
-  onPlus: () => void
+  useRounds: boolean
+  onScoreChange: (delta: number) => void
 }) {
   return (
     <article
@@ -498,18 +562,32 @@ function PlayerCard({
       </h3>
 
       <div className="score-stack-vite">
-        <Button
-          aria-label={`Ajouter 1 point à ${player.name}`}
-          className={cn(
-            "score-button-vite score-button-plus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
-            count >= 5 && "text-2xl",
-          )}
-          onClick={onPlus}
-          style={{ backgroundColor: "var(--player-accent)" }}
-          type="button"
-        >
-          +
-        </Button>
+        <div className="score-control-row-vite">
+          <Button
+            aria-label={`Ajouter 10 points a ${player.name}`}
+            className={cn(
+              "score-button-vite score-button-fast-vite rounded-md text-xl font-black text-white hover:opacity-90",
+              count >= 5 && "text-base",
+            )}
+            onClick={() => onScoreChange(10)}
+            style={{ backgroundColor: "var(--player-accent)" }}
+            type="button"
+          >
+            +10
+          </Button>
+          <Button
+            aria-label={`Ajouter 1 point a ${player.name}`}
+            className={cn(
+              "score-button-vite score-button-plus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
+              count >= 5 && "text-2xl",
+            )}
+            onClick={() => onScoreChange(1)}
+            style={{ backgroundColor: "var(--player-accent)" }}
+            type="button"
+          >
+            +
+          </Button>
+        </div>
 
         <div
           className={cn(
@@ -520,33 +598,49 @@ function PlayerCard({
           {player.total}
         </div>
 
-        <Badge
-          className={cn(
-            "round-score-vite mx-auto rounded-md px-3 py-1 text-sm font-black",
-            player.current === 0 && "text-muted-foreground",
-            count >= 5 && "px-1.5 py-0.5 text-[0.7rem]",
-          )}
-          style={{
-            borderColor: "color-mix(in srgb, var(--player-accent) 50%, transparent)",
-            color: player.current === 0 ? undefined : "var(--player-accent)",
-          }}
-          variant="outline"
-        >
-          Manche {formatSigned(player.current)}
-        </Badge>
+        {useRounds && (
+          <Badge
+            className={cn(
+              "round-score-vite mx-auto rounded-md px-3 py-1 text-sm font-black",
+              player.current === 0 && "text-muted-foreground",
+              count >= 5 && "px-1.5 py-0.5 text-[0.7rem]",
+            )}
+            style={{
+              borderColor: "color-mix(in srgb, var(--player-accent) 50%, transparent)",
+              color: player.current === 0 ? undefined : "var(--player-accent)",
+            }}
+            variant="outline"
+          >
+            Manche {formatSigned(player.current)}
+          </Badge>
+        )}
 
-        <Button
-          aria-label={`Retirer 1 point à ${player.name}`}
-          className={cn(
-            "score-button-vite score-button-minus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
-            count >= 5 && "text-2xl",
-          )}
-          onClick={onMinus}
-          style={{ backgroundColor: "color-mix(in srgb, var(--player-accent) 55%, black)" }}
-          type="button"
-        >
-          -
-        </Button>
+        <div className="score-control-row-vite">
+          <Button
+            aria-label={`Retirer 10 points a ${player.name}`}
+            className={cn(
+              "score-button-vite score-button-fast-vite score-button-minus-vite rounded-md text-xl font-black text-white hover:opacity-90",
+              count >= 5 && "text-base",
+            )}
+            onClick={() => onScoreChange(-10)}
+            style={{ backgroundColor: "color-mix(in srgb, var(--player-accent) 55%, black)" }}
+            type="button"
+          >
+            -10
+          </Button>
+          <Button
+            aria-label={`Retirer 1 point a ${player.name}`}
+            className={cn(
+              "score-button-vite score-button-minus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
+              count >= 5 && "text-2xl",
+            )}
+            onClick={() => onScoreChange(-1)}
+            style={{ backgroundColor: "color-mix(in srgb, var(--player-accent) 55%, black)" }}
+            type="button"
+          >
+            -
+          </Button>
+        </div>
       </div>
     </article>
   )
@@ -556,17 +650,23 @@ function HistorySheet({
   history,
   players,
   round,
+  useRounds,
 }: {
   history: HistoryEntry[]
   players: Player[]
   round: number
+  useRounds: boolean
 }) {
   const ranking = [...players].sort((first, second) => second.total - first.total)
   return (
     <SheetContent className="history-sheet-vite h-[72dvh] border-border/70 bg-background/95 p-0 backdrop-blur" side="bottom">
       <SheetHeader className="border-b">
         <SheetTitle className="text-2xl font-black">Résumé</SheetTitle>
-        <SheetDescription>Classement actuel et scores validés à chaque fin de manche.</SheetDescription>
+        <SheetDescription>
+          {useRounds
+            ? "Classement actuel et scores valides a chaque fin de manche."
+            : "Classement actuel en score direct."}
+        </SheetDescription>
       </SheetHeader>
 
       <ScrollArea className="min-h-0 flex-1 px-4 pb-4">
@@ -576,7 +676,7 @@ function HistorySheet({
               <CardTitle className="text-base font-black">Classement</CardTitle>
               <Button
                 className="h-8 px-3 text-xs font-black"
-                onClick={() => downloadSummary(players, history, round)}
+                onClick={() => downloadSummary(players, history, round, useRounds)}
                 type="button"
                 variant="outline"
               >
@@ -606,7 +706,7 @@ function HistorySheet({
           </CardContent>
         </Card>
 
-        {history.length === 0 ? (
+        {!useRounds ? null : history.length === 0 ? (
           <p className="py-8 text-center text-sm font-bold text-muted-foreground">
             Aucune manche validée
           </p>
@@ -640,8 +740,13 @@ function HistorySheet({
   )
 }
 
-function downloadSummary(players: Player[], history: HistoryEntry[], round: number) {
-  const content = buildSummaryText(players, history, round)
+function downloadSummary(
+  players: Player[],
+  history: HistoryEntry[],
+  round: number,
+  useRounds: boolean,
+) {
+  const content = buildSummaryText(players, history, round, useRounds)
   const blob = new Blob(["\ufeff", content], { type: "text/plain;charset=utf-8" })
   const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
@@ -654,11 +759,16 @@ function downloadSummary(players: Player[], history: HistoryEntry[], round: numb
   URL.revokeObjectURL(url)
 }
 
-function buildSummaryText(players: Player[], history: HistoryEntry[], round: number) {
+function buildSummaryText(
+  players: Player[],
+  history: HistoryEntry[],
+  round: number,
+  useRounds: boolean,
+) {
   const ranking = [...players].sort((first, second) => second.total - first.total)
   const lines = [
     "Résumé Scoring",
-    `Manche en cours : ${round}`,
+    useRounds ? `Manche en cours : ${round}` : "Mode : sans manches",
     "",
     "Classement",
     ...ranking.map((player, index) => {
@@ -669,7 +779,9 @@ function buildSummaryText(players: Player[], history: HistoryEntry[], round: num
     "Historique",
   ]
 
-  if (history.length === 0) {
+  if (!useRounds) {
+    lines.push("Partie en score direct")
+  } else if (history.length === 0) {
     lines.push("Aucune manche validée")
   } else {
     history.forEach((entry) => {

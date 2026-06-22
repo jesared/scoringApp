@@ -108,6 +108,22 @@
     justify-self: center;
   }
 
+  .score-control-row-vite {
+    display: flex;
+    justify-content: center;
+    gap: clamp(0.35rem, 1.4vw, 0.5rem);
+  }
+
+  .score-control-row-vite .score-button-plus-vite,
+  .score-control-row-vite .score-button-minus-vite {
+    margin: 0;
+  }
+
+  .score-button-fast-vite {
+    width: clamp(3.15rem, 14vw, 4.25rem);
+    font-size: 1.15rem;
+  }
+
   .score-button-plus-vite {
     margin-bottom: 0.5rem;
   }
@@ -172,6 +188,12 @@
       min-width: 0;
       padding-inline: 0;
       font-size: 1rem;
+    }
+
+    .setup-mode-button-vite {
+      height: 3rem;
+      padding-inline: 0.5rem;
+      font-size: 0.85rem;
     }
 
     .setup-name-fields-vite {
@@ -284,6 +306,11 @@
       font-size: 1.55rem;
     }
 
+    .score-button-fast-vite {
+      width: clamp(3rem, 15vw, 3.5rem);
+      font-size: 1rem;
+    }
+
     .score-grid-vite.players-4 {
       gap: 0.55rem;
     }
@@ -311,6 +338,11 @@
       width: clamp(2.45rem, 11vw, 2.9rem);
       height: clamp(2rem, 6vh, 2.35rem);
       font-size: 1.35rem;
+    }
+
+    .score-grid-vite.players-4 .score-button-fast-vite {
+      width: clamp(2.75rem, 14vw, 3.15rem);
+      font-size: 0.9rem;
     }
   }
 
@@ -370,6 +402,11 @@
       width: 2.35rem;
       height: 1.9rem;
       font-size: 1.25rem;
+    }
+
+    .score-grid-vite.players-4 .score-button-fast-vite {
+      width: 2.75rem;
+      font-size: 0.82rem;
     }
   }
 
@@ -451,6 +488,11 @@
       min-width: 0;
       padding: 0;
       font-size: 1.5rem;
+    }
+
+    .score-button-fast-vite {
+      width: clamp(2.85rem, 8vw, 3.5rem);
+      font-size: 0.95rem;
     }
 
     .score-button-plus-vite {
@@ -542,6 +584,11 @@
       width: clamp(2rem, 6vw, 2.5rem);
       height: clamp(1.55rem, 6.2vh, 1.9rem);
       font-size: 1.15rem;
+    }
+
+    .score-button-fast-vite {
+      width: clamp(2.45rem, 7vw, 3rem);
+      font-size: 0.8rem;
     }
   }
 }
