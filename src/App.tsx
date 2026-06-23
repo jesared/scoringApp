@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils"
 const STORAGE_KEY = "scoring-state-v1"
 
 type Screen = "setup" | "score"
+type ScoreGoal = "highest" | "lowest"
 
 type Player = {
   name: string
@@ -45,6 +46,7 @@ type ScoreState = {
   count: number
   round: number
   useRounds: boolean
+  scoreGoal: ScoreGoal
   history: HistoryEntry[]
   players: Player[]
 }
@@ -64,6 +66,7 @@ function createDefaultState(count = 4): ScoreState {
     count,
     round: 1,
     useRounds: true,
+    scoreGoal: "highest",
     history: [],
     players: Array.from({ length: count }, (_, index) => ({
       name: `Joueur ${index + 1}`,
@@ -101,6 +104,7 @@ function loadState(): ScoreState {
       count,
       round: Math.max(1, Number.parseInt(String(stored.round), 10) || 1),
       useRounds: stored.useRounds !== false,
+      scoreGoal: stored.scoreGoal === "lowest" ? "lowest" : "highest",
       history: Array.isArray(stored.history) ? stored.history : [],
       players,
     }
@@ -111,6 +115,16 @@ function loadState(): ScoreState {
 
 function formatSigned(value: number) {
   return value > 0 ? `+${value}` : String(value)
+}
+
+function sortPlayersByGoal(players: Player[], scoreGoal: ScoreGoal) {
+  return [...players].sort((first, second) =>
+    scoreGoal === "lowest" ? first.total - second.total : second.total - first.total,
+  )
+}
+
+function getScoreGoalLabel(scoreGoal: ScoreGoal) {
+  return scoreGoal === "lowest" ? "Moins de points" : "Plus de points"
 }
 
 export default function App() {
@@ -167,6 +181,13 @@ export default function App() {
         total: useRounds ? player.total : player.total + player.current,
         current: useRounds ? player.current : 0,
       })),
+    }))
+  }
+
+  function updateScoreGoal(scoreGoal: ScoreGoal) {
+    setState((current) => ({
+      ...current,
+      scoreGoal,
     }))
   }
 
@@ -263,8 +284,10 @@ export default function App() {
           players={state.players}
           count={state.count}
           useRounds={state.useRounds}
+          scoreGoal={state.scoreGoal}
           onCountChange={updatePlayerCount}
           onNameChange={updatePlayerName}
+          onScoreGoalChange={updateScoreGoal}
           onUseRoundsChange={updateUseRounds}
           onSubmit={startGame}
         />
@@ -289,21 +312,25 @@ function SetupScreen({
   players,
   count,
   useRounds,
+  scoreGoal,
   onCountChange,
   onNameChange,
+  onScoreGoalChange,
   onUseRoundsChange,
   onSubmit,
 }: {
   players: Player[]
   count: number
   useRounds: boolean
+  scoreGoal: ScoreGoal
   onCountChange: (count: number) => void
   onNameChange: (index: number, name: string) => void
+  onScoreGoalChange: (scoreGoal: ScoreGoal) => void
   onUseRoundsChange: (useRounds: boolean) => void
   onSubmit: () => void
 }) {
   return (
-    <section className="setup-screen-vite mx-auto flex h-full max-w-xl flex-col gap-7 overflow-y-auto">
+    <section className="setup-screen-vite mx-auto flex h-full max-w-xl flex-col gap-7 overflow-hidden">
       <div className="setup-head-vite flex flex-col gap-2">
         <p className="setup-label-vite text-sm font-black uppercase text-cyan-300">Scoring</p>
         <h1 className="setup-title-vite text-5xl font-black leading-none tracking-normal">
@@ -364,14 +391,40 @@ function SetupScreen({
           </div>
         </fieldset>
 
-        <div className="setup-name-fields-vite flex flex-col gap-3">
+        <fieldset className="flex flex-col gap-3">
+          <legend className="setup-legend-vite text-sm font-extrabold text-muted-foreground">
+            Objectif du score
+          </legend>
+          <div className="setup-goal-grid-vite grid grid-cols-2 gap-2">
+            <Button
+              aria-pressed={scoreGoal === "highest"}
+              className="setup-goal-button-vite h-14 text-sm font-black aria-pressed:border-cyan-300 aria-pressed:bg-cyan-300/15 aria-pressed:text-cyan-300"
+              onClick={() => onScoreGoalChange("highest")}
+              type="button"
+              variant="outline"
+            >
+              Plus haut gagne
+            </Button>
+            <Button
+              aria-pressed={scoreGoal === "lowest"}
+              className="setup-goal-button-vite h-14 text-sm font-black aria-pressed:border-cyan-300 aria-pressed:bg-cyan-300/15 aria-pressed:text-cyan-300"
+              onClick={() => onScoreGoalChange("lowest")}
+              type="button"
+              variant="outline"
+            >
+              Plus bas gagne
+            </Button>
+          </div>
+        </fieldset>
+
+        <div className="setup-name-fields-vite grid gap-3">
           {players.map((player, index) => (
-            <label className="setup-name-field-vite flex flex-col gap-1.5" key={index}>
+            <label className="setup-name-field-vite flex flex-col" key={index}>
               <span className="setup-name-label-vite text-xs font-extrabold text-muted-foreground">
                 Joueur {index + 1}
               </span>
               <input
-                className="setup-input-vite h-13 rounded-md border border-input bg-input/30 px-3 text-base font-extrabold outline-none transition focus:border-ring focus:ring-[3px] focus:ring-ring/50"
+                className="setup-input-vite rounded-md border border-input bg-input/30 px-3 text-base font-extrabold outline-none transition focus:border-ring focus:ring-[3px] focus:ring-ring/50"
                 maxLength={18}
                 onChange={(event) => onNameChange(index, event.target.value)}
                 value={player.name}
@@ -380,7 +433,7 @@ function SetupScreen({
           ))}
         </div>
 
-        <Button className="setup-submit-vite h-16 text-base font-black" type="submit">
+        <Button className="setup-submit-vite text-base font-black" type="submit">
           Démarrer
         </Button>
       </form>
@@ -411,10 +464,7 @@ function ScoreScreen({
 }) {
   return (
     <section
-      className={cn(
-        "score-screen-vite grid h-full gap-2",
-        state.useRounds ? "grid-rows-[auto_auto_1fr]" : "grid-rows-[auto_1fr]",
-      )}
+      className="score-screen-vite grid h-full grid-rows-[auto_auto_1fr] gap-2"
     >
       <header className="score-topbar-vite grid grid-cols-[auto_1fr_auto] items-center gap-2.5">
         <Button
@@ -449,6 +499,7 @@ function ScoreScreen({
               history={state.history}
               players={state.players}
               round={state.round}
+              scoreGoal={state.scoreGoal}
               useRounds={state.useRounds}
             />
           </Sheet>
@@ -478,12 +529,15 @@ function ScoreScreen({
       </header>
 
       {state.useRounds && (
-        <div className="round-strip-vite grid min-h-11 grid-cols-[auto_1fr] items-center gap-2">
+        <div className="round-strip-vite grid min-h-11 grid-cols-[auto_auto_1fr] items-center gap-2">
           <Badge
             className="round-count-vite h-11 rounded-md px-3 text-base font-black"
             variant="secondary"
           >
             Manche&nbsp;<span className="text-lg">{state.round}</span>
+          </Badge>
+          <Badge className="goal-count-vite h-11 rounded-md px-3 text-sm font-black" variant="outline">
+            {getScoreGoalLabel(state.scoreGoal)}
           </Badge>
           <Button
             className="finish-round-vite h-11 bg-gradient-to-r from-cyan-400 to-blue-500 text-sm font-black text-white hover:from-cyan-400/90 hover:to-blue-500/90"
@@ -493,6 +547,14 @@ function ScoreScreen({
           >
             Fin de manche
           </Button>
+        </div>
+      )}
+
+      {!state.useRounds && (
+        <div className="goal-strip-vite grid min-h-9 items-center">
+          <Badge className="goal-count-vite h-9 rounded-md px-3 text-sm font-black" variant="secondary">
+            Objectif&nbsp;: {getScoreGoalLabel(state.scoreGoal)}
+          </Badge>
         </div>
       )}
 
@@ -566,7 +628,7 @@ function PlayerCard({
           <Button
             aria-label={`Ajouter 10 points a ${player.name}`}
             className={cn(
-              "score-button-vite score-button-fast-vite rounded-md text-xl font-black text-white hover:opacity-90",
+              "score-button-vite score-button-step-vite rounded-md font-black text-white hover:opacity-90",
               count >= 5 && "text-base",
             )}
             onClick={() => onScoreChange(10)}
@@ -576,9 +638,21 @@ function PlayerCard({
             +10
           </Button>
           <Button
+            aria-label={`Ajouter 5 points a ${player.name}`}
+            className={cn(
+              "score-button-vite score-button-step-vite rounded-md font-black text-white hover:opacity-90",
+              count >= 5 && "text-base",
+            )}
+            onClick={() => onScoreChange(5)}
+            style={{ backgroundColor: "var(--player-accent)" }}
+            type="button"
+          >
+            +5
+          </Button>
+          <Button
             aria-label={`Ajouter 1 point a ${player.name}`}
             className={cn(
-              "score-button-vite score-button-plus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
+              "score-button-vite score-button-unit-vite score-button-plus-vite rounded-md font-black text-white hover:opacity-90",
               count >= 5 && "text-2xl",
             )}
             onClick={() => onScoreChange(1)}
@@ -619,7 +693,7 @@ function PlayerCard({
           <Button
             aria-label={`Retirer 10 points a ${player.name}`}
             className={cn(
-              "score-button-vite score-button-fast-vite score-button-minus-vite rounded-md text-xl font-black text-white hover:opacity-90",
+              "score-button-vite score-button-step-vite score-button-minus-vite rounded-md font-black text-white hover:opacity-90",
               count >= 5 && "text-base",
             )}
             onClick={() => onScoreChange(-10)}
@@ -629,9 +703,21 @@ function PlayerCard({
             -10
           </Button>
           <Button
+            aria-label={`Retirer 5 points a ${player.name}`}
+            className={cn(
+              "score-button-vite score-button-step-vite score-button-minus-vite rounded-md font-black text-white hover:opacity-90",
+              count >= 5 && "text-base",
+            )}
+            onClick={() => onScoreChange(-5)}
+            style={{ backgroundColor: "color-mix(in srgb, var(--player-accent) 55%, black)" }}
+            type="button"
+          >
+            -5
+          </Button>
+          <Button
             aria-label={`Retirer 1 point a ${player.name}`}
             className={cn(
-              "score-button-vite score-button-minus-vite rounded-md text-3xl font-black text-white hover:opacity-90",
+              "score-button-vite score-button-unit-vite score-button-minus-vite rounded-md font-black text-white hover:opacity-90",
               count >= 5 && "text-2xl",
             )}
             onClick={() => onScoreChange(-1)}
@@ -650,14 +736,16 @@ function HistorySheet({
   history,
   players,
   round,
+  scoreGoal,
   useRounds,
 }: {
   history: HistoryEntry[]
   players: Player[]
   round: number
+  scoreGoal: ScoreGoal
   useRounds: boolean
 }) {
-  const ranking = [...players].sort((first, second) => second.total - first.total)
+  const ranking = sortPlayersByGoal(players, scoreGoal)
   return (
     <SheetContent className="history-sheet-vite h-[72dvh] border-border/70 bg-background/95 p-0 backdrop-blur" side="bottom">
       <SheetHeader className="border-b">
@@ -676,7 +764,7 @@ function HistorySheet({
               <CardTitle className="text-base font-black">Classement</CardTitle>
               <Button
                 className="h-8 px-3 text-xs font-black"
-                onClick={() => downloadSummary(players, history, round, useRounds)}
+                onClick={() => downloadSummary(players, history, round, useRounds, scoreGoal)}
                 type="button"
                 variant="outline"
               >
@@ -745,8 +833,9 @@ function downloadSummary(
   history: HistoryEntry[],
   round: number,
   useRounds: boolean,
+  scoreGoal: ScoreGoal,
 ) {
-  const content = buildSummaryText(players, history, round, useRounds)
+  const content = buildSummaryText(players, history, round, useRounds, scoreGoal)
   const blob = new Blob(["\ufeff", content], { type: "text/plain;charset=utf-8" })
   const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
@@ -764,11 +853,13 @@ function buildSummaryText(
   history: HistoryEntry[],
   round: number,
   useRounds: boolean,
+  scoreGoal: ScoreGoal,
 ) {
-  const ranking = [...players].sort((first, second) => second.total - first.total)
+  const ranking = sortPlayersByGoal(players, scoreGoal)
   const lines = [
     "Résumé Scoring",
     useRounds ? `Manche en cours : ${round}` : "Mode : sans manches",
+    `Objectif : ${getScoreGoalLabel(scoreGoal)}`,
     "",
     "Classement",
     ...ranking.map((player, index) => {
